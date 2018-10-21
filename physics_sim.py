@@ -19,15 +19,15 @@ def collide(p1, p2):
     if distance < p1.size + p2.size:
         tangent = math.atan2(dx, dy) #find angle of tangent
         angle = 0.5 * math.pi + tangent
+        total_mass = p1.mass + p2.mass
 
-        angle1 = 2 * tangent - p1.angle
-        angle2 = 2 * tangent - p2.angle
-        speed1 = p2.speed * elasticity
-        speed2 = p1.speed * elasticity
+        p1.angle, p1.speed = addVectors((p1.angle, p1.speed * (p1.mass - p2.mass) / total_mass), (angle, 2 * p2.speed * p2.mass / total_mass))
+        p2.angle, p2.speed = addVectors((p2.angle, p2.speed * (p2.mass - p1.mass) / total_mass), (angle + math.pi, 2 * p1.speed * p1.mass / total_mass))
+        p2.speed *= elasticity
+        p1.speed *= elasticity
+        #CONSERVATION OF MOMENTUM
 
-        (p1.angle, p1.speed) = (angle1, speed1)
-        (p2.angle, p2.speed) = (angle2, speed2) #CONSERVATION OF MOMENTUM
-
+        overlap = 0.5 * (p1.size + p2.size - distance + 1)
         p1.x += math.sin(angle)
         p1.y -= math.cos(angle)
         p2.x -= math.sin(angle)
@@ -51,14 +51,17 @@ def findParticle(particles, x, y):
     return None
 
 class Particle:
-    def __init__(self, position, size):
+    def __init__(self, position, size, mass = 0.5):
         self.x, self.y = position
         self.size = size
+        self.mass = mass
         self.colour = (0,0,0)
-        self.thickness = 1
+        self.thickness = 0
 
         self.speed = 0.2
         self.angle = math.pi / 2 # angle in radians; pi/2 = 90º
+
+
 
     def display(self):
         pygame.draw.circle(window, self.colour, (int(self.x), int(self.y)), self.size, self.thickness)
@@ -101,11 +104,14 @@ particle_amount = 3
 particles = []
 for x in range(particle_amount):
     size = random.randint(10, 20)
+    density = random.randint(1, 20)
     x, y = random.randint(size, width - size), random.randint(size, height - size)
 
-    particle = Particle((x, y), size)
+    particle = Particle((x, y), size, density * size ** 2)
     particle.speed = random.random()
     particle.angle = random.uniform(0, math.pi*2)
+
+    particle.colour = (200 - density * 10, 200 - density * 10, 255)
 
     particles.append(particle)
 
