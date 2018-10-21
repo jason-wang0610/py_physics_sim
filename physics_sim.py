@@ -10,6 +10,29 @@ gravity = (math.pi, 0.1)
 drag = 0.99
 elasticity = 0.75
 
+def collide(p1, p2):
+    #diff in x,y
+    dx = p1.x - p2.x
+    dy = p1.y - p2.y
+
+    distance = math.hypot(dx, dy) #distnace between points with pythag
+    if distance < p1.size + p2.size:
+        tangent = math.atan2(dx, dy) #find angle of tangent
+        angle = 0.5 * math.pi + tangent
+
+        angle1 = 2 * tangent - p1.angle
+        angle2 = 2 * tangent - p2.angle
+        speed1 = p2.speed * elasticity
+        speed2 = p1.speed * elasticity
+
+        (p1.angle, p1.speed) = (angle1, speed1)
+        (p2.angle, p2.speed) = (angle2, speed2) #CONSERVATION OF MOMENTUM
+
+        p1.x += math.sin(angle)
+        p1.y -= math.cos(angle)
+        p2.x -= math.sin(angle)
+        p2.y += math.cos(angle)
+
 
 def addVectors(vector1, vector2):
     angle1, len1 = vector1
@@ -21,6 +44,12 @@ def addVectors(vector1, vector2):
     angle = math.pi * 0.5 - math.atan2(y, x) # works out angle with x=0 taken into consideration
     return (angle, len)
 
+def findParticle(particles, x, y):
+    for p in particles:
+        if math.hypot(p.x - x, p.y - y) <= p.size:
+            return p
+    return None
+
 class Particle:
     def __init__(self, position, size):
         self.x, self.y = position
@@ -29,7 +58,7 @@ class Particle:
         self.thickness = 1
 
         self.speed = 0.2
-        self.angle = math.pi / 2
+        self.angle = math.pi / 2 # angle in radians; pi/2 = 90º
 
     def display(self):
         pygame.draw.circle(window, self.colour, (int(self.x), int(self.y)), self.size, self.thickness)
@@ -68,7 +97,7 @@ window = pygame.display.set_mode((width, height))
 pygame.display.set_caption('Physics Simulation')
 window.fill(bg_colour)
 
-particle_amount = 20
+particle_amount = 3
 particles = []
 for x in range(particle_amount):
     size = random.randint(10, 20)
@@ -82,15 +111,34 @@ for x in range(particle_amount):
 
 
 running = True
+selected_particle = None
 while running:
+    window.fill(bg_colour)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouseX, mouseY = pygame.mouse.get_pos()
+            selected_particle = findParticle(particles, mouseX, mouseY)
+        elif event.type == pygame.MOUSEBUTTONUP:
+            selected_particle = None
 
-    window.fill(bg_colour)
-    for particle in particles:
-        particle.move()
-        particle.bounce()
+    if selected_particle:
+        (mouseX, mouseY) = pygame.mouse.get_pos()
+        dx = mouseX - selected_particle.x
+        dy = mouseY - selected_particle.y
+        selected_particle.angle = math.atan2(dy, dx) + 0.5 * math.pi
+        selected_particle.speed = math.hypot(dx, dy) * 0.1
+        pygame.draw.line(window, (255,0,0), (mouseX, mouseY), (selected_particle.x, selected_particle.y), 1)
+        pygame.display.flip()
+
+
+    for i, particle in enumerate(particles):
+        if particle != selected_particle:
+            particle.move()
+            particle.bounce()
+            for particle2 in particles[i + 1:]:
+                collide(particle, particle2)
         particle.display()
 
     pygame.display.flip()
