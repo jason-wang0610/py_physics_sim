@@ -2,7 +2,6 @@ import random
 import pygame
 import math
 import particles
-import tkinter as tk
 
 class UniverseScreen:
     def __init__(self, width, height):
@@ -101,7 +100,7 @@ while running:
         if universe_screen.draw_tracers:
             for i, tracer_pos in enumerate(p.prev_pos):
                 if i < p.tracer_len - 1:
-                    pygame.draw.line(window, (255,0,0),
+                    pygame.draw.line(window, (255 * (i / p.tracer_len),0,0),
                     (int(universe_screen.mx + (tracer_pos[0] + universe_screen.dx) * m), int(universe_screen.my + (tracer_pos[1] + universe_screen.dy) * m)),
                     (int(universe_screen.mx + (p.prev_pos[i + 1][0] + universe_screen.dx) * m), int(universe_screen.my + (p.prev_pos[i + 1][1] + universe_screen.dy) * m)),
                     1)
