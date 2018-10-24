@@ -128,7 +128,7 @@ while running:
         """ Drawing particle tracers from a history of 100 previous locations """
         if universe_screen.draw_tracers:
             for i, tracer_pos in enumerate(p.prev_pos):
-                """ Draws lines from each previous point in a gradient colour """
+                """ Draws lines from each previous point in a gradient colour  """
                 if i < p.tracer_len - 1:
                     pygame.draw.line(window, (255 * (i / p.tracer_len),0,0),
                     (int(universe_screen.mx + (tracer_pos[0] + universe_screen.dx) * m), int(universe_screen.my + (tracer_pos[1] + universe_screen.dy) * m)),
