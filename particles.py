@@ -1,6 +1,14 @@
+"""
+
+Custom Python3 module to simulate certain functions of physics to a limited degree
+Efficiency improvements could probably be made
+
+"""
+
+
+
 import random
 import math
-
 
 
 def collide(p1, p2):
