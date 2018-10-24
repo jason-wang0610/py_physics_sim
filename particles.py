@@ -29,6 +29,16 @@ def collide(p1, p2):
         p2.x -= math.sin(angle) * overlap
         p2.y += math.cos(angle) * overlap
 
+def combine(p1, p2):
+    if math.hypot(p1.x - p2.x, p1.y - p2.y) < p1.size + p2.size:
+        total_mass = p1.mass + p2.mass
+        p1.x = (p1.x * p1.mass + p2.x * p2.mass) / total_mass
+        p1.y = (p1.y * p1.mass + p2.y * p2.mass) / total_mass
+        p1.angle, p1.speed = addVectors((p1.angle, p1.speed * p1.mass / total_mass), (p2.angle, p2.speed * p2.mass / total_mass))
+        p1.speed *= p1.elasticity * p2.elasticity
+        p1.mass += p2.mass
+        p1.collide_with = p2
+
 
 def addVectors(vector1, vector2):
     """ Adds two vectors """
@@ -57,19 +67,18 @@ class Particle:
         self.colour = (0,0,0)
         self.thickness = 0
 
-        self.speed = 0
+        self.speed = 1
         self.angle = math.pi / 2 # angle in radians; pi/2 = 90º
-        self.drag = 1
+        self.drag = 0
         self.elasticity = 0.9
 
 
     def move(self):
-        """ Calculates position with angle and velocity and drag """
+        """ Calculates position with angle and velocity """
         # (self.angle, self.speed) = addVectors((self.angle, self.speed), (math.pi, 0.6))
         self.x += math.sin(self.angle) * self.speed
         self.y -= math.cos(self.angle) * self.speed
 
-        self.speed *= self.drag
 
     def mouseMove(self, x, y):
         """ Moves object towards a given location (used when using mouse interations) """
@@ -86,6 +95,16 @@ class Particle:
         """ Set angle and speed depending on given vector """
         self.angle, self.speed = addVectors((self.angle, self.speed), vector)
 
+    def attract(self, p2):
+        dx = self.x - p2.x
+        dy = self.y - p2.y
+        distance = math.hypot(dx, dy)
+
+        theta = math.atan2(dy, dx)
+        force = 0.2 * self.mass * p2.mass / distance ** 2
+
+        self.accelerate((theta - 0.5 * math.pi, force / self.mass))
+        p2.accelerate((theta + 0.5 * math.pi, force / p2.mass))
 
 
 class Environment:
@@ -106,7 +125,9 @@ class Environment:
         'drag': (1, lambda p: p.experienceDrag()),
         'bounce': (1, lambda p: self.bounce(p)),
         'accelerate': (1, lambda p: p.accelerate(self.acceleration)),
-        'collide': (2, lambda p1, p2: collide(p1, p2))
+        'collide': (2, lambda p1, p2: collide(p1, p2)),
+        'attract': (2, lambda p1, p2: p1.attract(p2)),
+        'combine': (2, lambda p1, p2: combine(p1, p2))
         }
 
     def addFunctions(self, func_list):
