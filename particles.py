@@ -72,6 +72,9 @@ class Particle:
         self.drag = 0
         self.elasticity = 0.9
 
+        self.prev_pos = []
+        self.tracer_len = 100
+
 
     def move(self):
         """ Calculates position with angle and velocity """
@@ -185,6 +188,14 @@ class Environment:
         """ Updates position of every particle """
         for i, particle in enumerate(self.particles):
             for f in self.particle_functions1:
+                if len(particle.prev_pos) < particle.tracer_len:
+                    for empty in range(0, particle.tracer_len):
+                        particle.prev_pos.append([int(particle.x), int(particle.y)])
+                particle.prev_pos.append([int(particle.x), int(particle.y)])
+                if len(particle.prev_pos) > particle.tracer_len:
+                    del particle.prev_pos[0]
+
+
                 f(particle) #move, drag, bounce
             for particle2 in self.particles[i + 1:]:
                 for f in self.particle_functions2:

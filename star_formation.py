@@ -2,6 +2,7 @@ import random
 import pygame
 import math
 import particles
+import tkinter as tk
 
 class UniverseScreen:
     def __init__(self, width, height):
@@ -12,6 +13,7 @@ class UniverseScreen:
         self.magnification = 1.0
 
         self.paused = False
+        self.draw_tracers = False
 
     def scroll(self, dx = 0, dy = 0):
         self.dx += dx * width / (self.magnification * 10)
@@ -27,6 +29,13 @@ class UniverseScreen:
         self.mx, self.my = 0, 0
         self.magnification = 1.0
 
+"""
+- add new particles at random or at cursor with mass range
+- restart simulation
+- button controls for zoom/reset
+- speed up/slow down sim
+"""
+
 width, height = 400, 400
 window = pygame.display.set_mode((width, height))
 universe_screen = UniverseScreen(width, height)
@@ -41,6 +50,7 @@ for p in range(100):
     particle_radius = math.sqrt(0.4 * particle_mass)
     universe.addParticles(mass = particle_mass, size = particle_radius, colour = (255,255,255))
 
+clock = pygame.time.Clock()
 running = True
 while running:
     for event in pygame.event.get():
@@ -61,11 +71,14 @@ while running:
                 universe_screen.zoom(2)
             elif event.key == pygame.K_r:
                 universe_screen.reset()
+            elif event.key == pygame.K_t:
+                universe_screen.draw_tracers = not universe_screen.draw_tracers
             elif event.key == pygame.K_SPACE:
                 universe_screen.paused = not universe_screen.paused
 
     if not universe_screen.paused:
         universe.update()
+
     window.fill(universe.colour)
 
     particle_to_remove = []
@@ -85,8 +98,17 @@ while running:
         else:
             pygame.draw.circle(window, p.colour, (x, y), size, 0)
 
+        if universe_screen.draw_tracers:
+            for i, tracer_pos in enumerate(p.prev_pos):
+                if i < p.tracer_len - 1:
+                    pygame.draw.line(window, (255,0,0),
+                    (int(universe_screen.mx + (tracer_pos[0] + universe_screen.dx) * m), int(universe_screen.my + (tracer_pos[1] + universe_screen.dy) * m)),
+                    (int(universe_screen.mx + (p.prev_pos[i + 1][0] + universe_screen.dx) * m), int(universe_screen.my + (p.prev_pos[i + 1][1] + universe_screen.dy) * m)),
+                    1)
+
     for p in particle_to_remove:
         if p in universe.particles:
             universe.particles.remove(p)
 
     pygame.display.flip()
+    clock.tick(30)
