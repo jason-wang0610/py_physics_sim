@@ -30,6 +30,7 @@ def collide(p1, p2):
         p2.y += math.cos(angle) * overlap
 
 def combine(p1, p2):
+    """ Combines two particles in a natural manner, p2 is removed and its mass is added to p1 """
     if math.hypot(p1.x - p2.x, p1.y - p2.y) < p1.size + p2.size:
         total_mass = p1.mass + p2.mass
         p1.x = (p1.x * p1.mass + p2.x * p2.mass) / total_mass
@@ -99,6 +100,7 @@ class Particle:
         self.angle, self.speed = addVectors((self.angle, self.speed), vector)
 
     def attract(self, p2):
+        """ Simulating forces of gravity between self particle and second particle """
         dx = self.x - p2.x
         dy = self.y - p2.y
         distance = math.hypot(dx, dy)
@@ -188,18 +190,17 @@ class Environment:
         """ Updates position of every particle """
         for i, particle in enumerate(self.particles):
             for f in self.particle_functions1:
-                if len(particle.prev_pos) < particle.tracer_len:
-                    for empty in range(0, particle.tracer_len):
-                        particle.prev_pos.append([int(particle.x), int(particle.y)])
+
+                """ Updates tracer details to array """
                 particle.prev_pos.append([int(particle.x), int(particle.y)])
                 if len(particle.prev_pos) > particle.tracer_len:
                     del particle.prev_pos[0]
 
+                f(particle) # contains all the single arg functions called by user to be applied to particle (move, drag, bounce, accelerate)
 
-                f(particle) #move, drag, bounce
             for particle2 in self.particles[i + 1:]:
                 for f in self.particle_functions2:
-                    f(particle, particle2) #collide
+                    f(particle, particle2) # contains all the two arg functions called by user for particle (collide, attract, combine)
 
     def findParticle(self, x, y):
         """ Returns particle if one is present at given location """
