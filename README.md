@@ -1,6 +1,17 @@
-# py_physics_sim
-Python module to simulate basic physics functions
+# Python physics simulation
+Python module and example to simulate basic physics 
 
-Particles.py is the main module
+`particles.py` is the custom core module containing the math
 
-Following the instructions in www.petercollingridge.co.uk/tutorials/pygame-physics-simulation/ for base functionalities and math stuff, additional functions (gimmicks) made after the fact
+Based off the tutorial by Peter Collingridge: www.petercollingridge.co.uk/tutorials/pygame-physics-simulation/ 
+
+## Star formation
+`starformation.py` uses the move, attract and combine functions from `particles.py` to simulate the movement and interaction of celestial bodies in space. Different bodies are generated with random mass, velocity and heading. Gravity can be observed acting between the bodies due to sufficiently large masses.
+
+The following user controls have been implemented:
+* **t** – toggle tracers
+* **space** – pause/play simulation
+* **↑ ↓ ← ↑** – move window view
+* **-** – zoom out
+* **+** – zoom in
+* **r** – reset window view
