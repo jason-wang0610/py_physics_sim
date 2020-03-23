@@ -6,7 +6,6 @@ Efficiency improvements could probably be made
 """
 
 
-
 import random
 import math
 
@@ -87,7 +86,8 @@ class Particle:
 
     def move(self):
         """ Calculates position with angle and velocity """
-        # (self.angle, self.speed) = addVectors((self.angle, self.speed), (math.pi, 0.6))
+        # GRAVITY
+        # (self.angle, self.speed) = addVectors((self.angle, self.speed), (math.pi, 0.5))
         self.x += math.sin(self.angle) * self.speed
         self.y -= math.cos(self.angle) * self.speed
 

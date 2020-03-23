@@ -1,3 +1,5 @@
+""" Uncomment line 90 on particles.py to implement gravity """
+
 import pygame
 import particles
 

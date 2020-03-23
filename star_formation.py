@@ -99,7 +99,7 @@ while running:
     if not universe_screen.paused:
         universe.update()
 
-    window.fill(universe.colour) # removes previous fram
+    window.fill(universe.colour) # removes previous frame
 
     particle_to_remove = []
     for p in universe.particles:
